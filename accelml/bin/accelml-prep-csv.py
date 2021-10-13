@@ -16,10 +16,13 @@ parser = argparse.ArgumentParser(
 
 def accel_csv_cleaner(accel_csv):
     rawacceldf = pd.read_csv(accel_csv)
-    no_na_acceldf = rawacceldf.fillna(0)
-    allannoted_acceldf = no_na_acceldf.loc[no_na_acceldf['Behavior'] != 0]
-    allclasses_acceldf = allannoted_acceldf.loc[allannoted_acceldf['Behavior'] != 'n']
-    allannoted_acceldf.to_csv('obsPen11FullR1_non.csv')
+    rawacceldf.columns = ['tag_id', 'date', 'time', 'camera_date', 'camera_time', \
+                  'behavior', 'acc_x', 'acc_y', 'acc_z', 'temp_c', 'battery_voltage', 'metadata']
+    allannoted_acceldf = rawacceldf.loc[rawacceldf['behavior'] != '']
+    allanno_withtimeacceldf = allannoted_acceldf.loc[allannoted_acceldf['time'] != '']
+    allclasses_acceldf = allanno_withtimeacceldf.loc[allanno_withtimeacceldf['behavior'] != 'n']
+    filetitle = 'cleaned'+ str(accel_csv)
+    allclasses_acceldf.to_csv(filetitle)
 
 def make_output_dir():
     """Makes an output/ directory if it does not already exist."""
