@@ -8,17 +8,26 @@
 #2. experiment with different size clusters
 
 import pandas as pd
+import argparse
 
 
-parser = argparse.ArgumentParser(
-  description="Clean and prepare accelometer csv data for CNN input by rounding to 3 decimal places\
-   and removing blank timestamps")
+parser = argparse.ArgumentParser(prog='accelml_prep_csv',
+  description="Clean and prepare accelerometer csv data for CNN input by rounding to 3 decimal places\
+   and removing blank timestamps",\
+    epilog="Columns of accelerometer data must be arranged:'tag_id', 'date', 'time', 'camera_date', 'camera_time', \
+                  'behavior', 'acc_x', 'acc_y', 'acc_z', 'temp_c', 'battery_voltage', 'metadata'")
+parser.add_argument("file", help = "input the path to the csv file of accelerometer data that\
+                                   requires cleaning")
+agrs = parser.parse_args()
+
+
 
 def accel_csv_cleaner(accel_csv):
     rawacceldf = pd.read_csv(accel_csv)
     rawacceldf.columns = ['tag_id', 'date', 'time', 'camera_date', 'camera_time', \
                   'behavior', 'acc_x', 'acc_y', 'acc_z', 'temp_c', 'battery_voltage', 'metadata']
-    allannoted_acceldf = rawacceldf.loc[rawacceldf['behavior'] != '']
+    roundacceldf = rawacceldf.round({'acc_x': 3, 'acc_y': 3, 'acc_z': 3})
+    allannoted_acceldf = roundacceldf.loc[roundacceldf['behavior'] != '']
     allanno_withtimeacceldf = allannoted_acceldf.loc[allannoted_acceldf['time'] != '']
     allclasses_acceldf = allanno_withtimeacceldf.loc[allanno_withtimeacceldf['behavior'] != 'n']
     filetitle = 'cleaned'+ str(accel_csv)
