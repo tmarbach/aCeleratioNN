@@ -10,15 +10,15 @@
 import pandas as pd
 import argparse
 
-
-parser = argparse.ArgumentParser(prog='accelml_prep_csv',
-  description="Clean and prepare accelerometer csv data for CNN input by rounding to 3 decimal places\
-   and removing blank timestamps",\
-    epilog="Columns of accelerometer data must be arranged:'tag_id', 'date', 'time', 'camera_date', 'camera_time', \
+def arguments():
+    parser = argparse.ArgumentParser(prog='accelml_prep_csv',
+      description="Clean and prepare accelerometer csv data for CNN input by rounding to 3 decimal places\
+       and removing blank timestamps",\
+        epilog="Columns of accelerometer data must be arranged:'tag_id', 'date', 'time', 'camera_date', 'camera_time', \
                   'behavior', 'acc_x', 'acc_y', 'acc_z', 'temp_c', 'battery_voltage', 'metadata'")
-parser.add_argument("file", help = "input the path to the csv file of accelerometer data that\
-                                   requires cleaning")
-agrs = parser.parse_args()
+    parser.add_argument("file", type=argparse.FileType('r'), help = "input the path to the csv file of accelerometer data that\
+                                       requires cleaning")
+    return parser.parse_args()
 
 
 
@@ -30,7 +30,7 @@ def accel_csv_cleaner(accel_csv):
     allannoted_acceldf = roundacceldf.loc[roundacceldf['behavior'] != '']
     allanno_withtimeacceldf = allannoted_acceldf.loc[allannoted_acceldf['time'] != '']
     allclasses_acceldf = allanno_withtimeacceldf.loc[allanno_withtimeacceldf['behavior'] != 'n']
-    filetitle = 'cleaned'+ str(accel_csv)
+    filetitle = 'cleaned_'+ str(accel_csv)
     allclasses_acceldf.to_csv(filetitle)
 
 def make_output_dir():
@@ -39,3 +39,11 @@ def make_output_dir():
         os.mkdir('output')
     except FileExistsError:
         pass
+
+
+def main():
+    args = arguments()
+    accel_csv_cleaner(args.file)
+
+if __name__ == "__main__":
+    main()
