@@ -6,8 +6,7 @@
 #future prep
 #1. cluster data into input chunks for the cnn
 #2. experiment with different size clusters
-import os
-import sys
+import os, sys
 import pandas as pd
 import argparse
 
@@ -17,26 +16,27 @@ def arguments():
        and removing blank timestamps",\
         epilog="Columns of accelerometer data must be arranged:'tag_id', 'date', 'time', 'camera_date', 'camera_time', \
                   'behavior', 'acc_x', 'acc_y', 'acc_z', 'temp_c', 'battery_voltage', 'metadata'")
-    parser.add_argument("file", type=argparse.FileType('r'), help = "input the path to the csv file of accelerometer data that\
+    parser.add_argument("csv_file", type=argparse.FileType('r'), help = "input the path to the csv file of accelerometer data that\
                                        requires cleaning")
+    parser.add_argument("-o", "--output", help="Directs the output to a name of your choice")
     return parser.parse_args()
 
 
 
-def accel_data_csv_cleaner(accel_data_csv):
-    if not os.path.exists(accel_data_csv):
-        sys.stderr.write("Error: '%s' does not exist"%accel_data_csv)
-        sys.exit(1)
-    filename = str(accel_data_csv)
-    rawacceldf = pd.read_csv(filename,low_memory=False)
+def accel_data_csv_cleaner(accel_data_csv, output_location):
+    # if not os.path.exists(str(accel_data_csv)):
+    #     sys.stderr.write("Error: '%s' does not exist"%accel_data_csv)
+    #     sys.exit(1)
+    #filename = str(accel_data_csv)
+    rawacceldf = pd.read_csv(accel_data_csv,low_memory=False)
     rawacceldf.columns = ['tag_id', 'date', 'time', 'camera_date', 'camera_time', \
                   'behavior', 'acc_x', 'acc_y', 'acc_z', 'temp_c', 'battery_voltage', 'metadata']
     roundacceldf = rawacceldf.round({'acc_x': 3, 'acc_y': 3, 'acc_z': 3})
     allannoted_acceldf = roundacceldf.loc[roundacceldf['behavior'] != '']
     allanno_withtimeacceldf = allannoted_acceldf.loc[allannoted_acceldf['time'] != '']
     allclasses_acceldf = allanno_withtimeacceldf.loc[allanno_withtimeacceldf['behavior'] != 'n']
-    output_title = 'cleaned_'+ filename
-    allclasses_acceldf.to_csv(output_title)
+    #output_title = 'cleaned_'+ filename
+    allclasses_acceldf.to_csv(output_location)
 
 def make_output_dir():
     """Makes an output/ directory if it does not already exist."""
@@ -48,7 +48,7 @@ def make_output_dir():
 
 def main():
     args = arguments()
-    accel_data_csv_cleaner(args.file)
+    accel_data_csv_cleaner(args.csv_file, args.output)
 
 if __name__ == "__main__":
     main()
