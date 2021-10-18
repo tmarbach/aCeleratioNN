@@ -32,11 +32,12 @@ def accel_data_csv_cleaner(accel_data_csv, output_location):
     rawacceldf.columns = ['tag_id', 'date', 'time', 'camera_date', 'camera_time', \
                   'behavior', 'acc_x', 'acc_y', 'acc_z', 'temp_c', 'battery_voltage', 'metadata']
     roundacceldf = rawacceldf.round({'acc_x': 3, 'acc_y': 3, 'acc_z': 3})
-    allannoted_acceldf = roundacceldf.loc[roundacceldf['behavior'] != '']
-    allanno_withtimeacceldf = allannoted_acceldf.loc[allannoted_acceldf['time'] != '']
+    roundacceldf = roundacceldf.fillna(0)
+    allannoted_acceldf = roundacceldf.loc[roundacceldf['behavior'] != 0]
+    allanno_withtimeacceldf = allannoted_acceldf.loc[allannoted_acceldf['time'] != 0]
     allclasses_acceldf = allanno_withtimeacceldf.loc[allanno_withtimeacceldf['behavior'] != 'n']
     #output_title = 'cleaned_'+ filename
-    allclasses_acceldf.to_csv(output_location)
+    allclasses_acceldf.to_csv(output_location, index=False)
 
 def make_output_dir():
     """Makes an output/ directory if it does not already exist."""
