@@ -6,7 +6,7 @@
 #future prep
 #1. cluster data into input chunks for the cnn
 #2. experiment with different size clusters
-import os, sys
+import os
 import pandas as pd
 import argparse
 
@@ -24,10 +24,6 @@ def arguments():
 
 
 def accel_data_csv_cleaner(accel_data_csv, output_location):
-    # if not os.path.exists(str(accel_data_csv)):
-    #     sys.stderr.write("Error: '%s' does not exist"%accel_data_csv)
-    #     sys.exit(1)
-    #filename = str(accel_data_csv)
     rawacceldf = pd.read_csv(accel_data_csv,low_memory=False)
     rawacceldf.columns = ['tag_id', 'date', 'time', 'camera_date', 'camera_time', \
                   'behavior', 'acc_x', 'acc_y', 'acc_z', 'temp_c', 'battery_voltage', 'metadata']
@@ -36,15 +32,14 @@ def accel_data_csv_cleaner(accel_data_csv, output_location):
     allannoted_acceldf = roundacceldf.loc[roundacceldf['behavior'] != 0]
     allanno_withtimeacceldf = allannoted_acceldf.loc[allannoted_acceldf['time'] != 0]
     allclasses_acceldf = allanno_withtimeacceldf.loc[allanno_withtimeacceldf['behavior'] != 'n']
-    #output_title = 'cleaned_'+ filename
     allclasses_acceldf.to_csv(output_location, index=False)
 
-def make_output_dir():
-    """Makes an output/ directory if it does not already exist."""
-    try:
-        os.mkdir('output')
-    except FileExistsError:
-        pass
+# def make_output_dir():
+#     """Makes an output/ directory if it does not already exist."""
+#     try:
+#         os.mkdir('output')
+#     except FileExistsError:
+#         pass
 
 
 def main():
