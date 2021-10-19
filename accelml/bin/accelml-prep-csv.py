@@ -11,30 +11,54 @@ import pandas as pd
 import argparse
 
 def arguments():
-    parser = argparse.ArgumentParser(prog='accelml_prep_csv', 
-            description="Clean and prepare accelerometer csv data for CNN input by rounding to\
-                         3 decimal places and removing blank timestamps",
-            epilog="Columns of accelerometer data must be arranged:'tag_id', 'date', 'time', 'camera_date', 'camera_time', \
-                  'behavior', 'acc_x', 'acc_y', 'acc_z', 'temp_c', 'battery_voltage', 'metadata'")
+    parser = argparse.ArgumentParser(
+            prog='accelml_prep_csv', 
+            description="Clean and prepare accelerometer csv data for CNN input by rounding\
+                        to 3 decimal places and removing blank timestamps",\
+            epilog="Columns of accelerometer data must be arranged:'tag_id', 'date', 'time',\
+                    'camera_date', 'camera_time', 'behavior', 'acc_x', 'acc_y', 'acc_z', 'temp_c',\
+                    'battery_voltage', 'metadata'"
+                 )
     parser.add_argument(
             "csv_file",
             type=str,
             help = "input the path to the csv file of accelerometer data that requires cleaning")
-    parser.add_argument("-o", "--output", help="Directs the output to a name of your choice")
+    parser.add_argument(
+            "-o",
+            "--output",
+            help="Directs the output to a name of your choice",
+            default=False)
     return parser.parse_args()
 
 
 
-def accel_data_csv_cleaner(accel_data_csv, output_location):
-    rawacceldf = pd.read_csv(accel_data_csv,low_memory=False)
-    rawacceldf.columns = ['tag_id', 'date', 'time', 'camera_date', 'camera_time', \
+def accel_data_csv_cleaner(accel_data_csv):
+    #rename variables
+    df = pd.read_csv(accel_data_csv,low_memory=False)
+    #check column names if they fit correctly and add an error if they don't
+    #df.rename() for renaming dictionary. 
+    #df.rename(columns={"A": "a", "B": "b", "C": "c"}, errors="raise")
+        # above line raises erro if the key in the name dic does not exist.
+       # check for correct number of columns, then check for correct column titles
+       #original titles = TagID,Date,Time,Camera date,Camera time,Behavior,accX,accY,
+       # accZ,Temp. (?C),Battery Voltage (V),Metadata
+    df.columns = ['tag_id', 'date', 'time', 'camera_date', 'camera_time', \
                   'behavior', 'acc_x', 'acc_y', 'acc_z', 'temp_c', 'battery_voltage', 'metadata']
-    roundacceldf = rawacceldf.round({'acc_x': 3, 'acc_y': 3, 'acc_z': 3})
-    roundacceldf = roundacceldf.fillna(0)
-    allannoted_acceldf = roundacceldf.loc[roundacceldf['behavior'] != 0]
-    allanno_withtimeacceldf = allannoted_acceldf.loc[allannoted_acceldf['time'] != 0]
-    allclasses_acceldf = allanno_withtimeacceldf.loc[allanno_withtimeacceldf['behavior'] != 'n']
-    allclasses_acceldf.to_csv(output_location, index=False)
+    df= df.dropna(subset=['time', 'behavior'])
+    #package into a separate func
+    #allannoted_acceldf = roundacceldf.loc[roundacceldf['behavior'] != 0]
+    #allanno_withtimeacceldf = allannoted_acceldf.loc[allannoted_acceldf['time'] != 0]
+    cleaned_df = df.loc[df['behavior'] != 'n']
+    return cleaned_df
+    #cleaned_df.to_csv(output_location, index=False)
+
+
+def output_data(original_data, clean_csv_df, output_location):
+    filename = os.path.basename(original_data)
+    if output_location == False:
+        clean_csv_df.to_csv('clean_'+filename, index=False)
+    else:
+        clean_csv_df.to_csv(output_location, index=False)
 
 # def make_output_dir():
 #     """Makes an output/ directory if it does not already exist."""
@@ -46,7 +70,8 @@ def accel_data_csv_cleaner(accel_data_csv, output_location):
 
 def main():
     args = arguments()
-    accel_data_csv_cleaner(args.csv_file, args.output)
+    clean_data = accel_data_csv_cleaner(args.csv_file)
+    output_data(args.csv_file, clean_data, args.output)
 
 if __name__ == "__main__":
     main()
