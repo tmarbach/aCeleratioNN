@@ -68,6 +68,25 @@ def output_data(original_data, clean_csv_df, output_location):
 #         pass
 
 
+def data_packaging(cleaned_csv_df, size):
+    """
+    Args:
+    cleaned_csv_df -- output of accel_data_csv_cleaner, a dataframe that contains 
+                        annotated and timestamped accelerometer data. 
+    size -- the number of rows of data to include in each "image"
+    
+    Returns:
+    packaged_cnn_data -- clustered data points representing a window of time and movement
+                        The "images" the CNN will label.  
+    """
+    # Window is starting with 1/5 of a second (5 lines)
+    #  This should take x rows of the df, convert to np.array (.to_numpy()) 
+    #   store and repeat the process until whole df is converted to "images"
+    # this will plug into the CNN
+    return (cleaned_csv_df[pos:pos + size] for pos in xrange(0, len(cleaned_csv_df), size))
+
+
+
 def main():
     args = arguments()
     clean_data = accel_data_csv_cleaner(args.csv_file)
