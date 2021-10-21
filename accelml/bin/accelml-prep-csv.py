@@ -37,20 +37,26 @@ def accel_data_csv_cleaner(accel_data_csv):
     df = pd.read_csv(accel_data_csv,low_memory=False)
     #check column names if they fit correctly and add an error if they don't
     #df.rename() for renaming dictionary. 
-    #df.rename(columns={"A": "a", "B": "b", "C": "c"}, errors="raise")
+    df.rename(columns={'TagID':'tag_id',
+                        'Date':'date',
+                        'Time':'time',
+                        'Camera date':'camera_date',
+                        'Camera time':'camera_time',
+                        'Behavior':'behavior',
+                        'accX':'acc_x',
+                        'accY':'acc_y',
+                        'accZ':'acc_z',
+                        'Temp. (?C)':'temp_c',
+                        'Battery Voltage (V)':
+                        'battery_voltage',
+                        'Metadata':'metadata'},
+                         errors="raise")
         # above line raises erro if the key in the name dic does not exist.
        # check for correct number of columns, then check for correct column titles
-       #original titles = TagID,Date,Time,Camera date,Camera time,Behavior,accX,accY,
-       # accZ,Temp. (?C),Battery Voltage (V),Metadata
-    df.columns = ['tag_id', 'date', 'time', 'camera_date', 'camera_time', \
-                  'behavior', 'acc_x', 'acc_y', 'acc_z', 'temp_c', 'battery_voltage', 'metadata']
     df= df.dropna(subset=['time', 'behavior'])
     #package into a separate func
-    #allannoted_acceldf = roundacceldf.loc[roundacceldf['behavior'] != 0]
-    #allanno_withtimeacceldf = allannoted_acceldf.loc[allannoted_acceldf['time'] != 0]
     cleaned_df = df.loc[df['behavior'] != 'n']
     return cleaned_df
-    #cleaned_df.to_csv(output_location, index=False)
 
 
 def output_data(original_data, clean_csv_df, output_location):
@@ -76,14 +82,15 @@ def data_packaging(cleaned_csv_df, size):
     size -- the number of rows of data to include in each "image"
     
     Returns:
-    packaged_cnn_data -- clustered data points representing a window of time and movement
-                        The "images" the CNN will label.  
+    packaged_cnn_data -- generator class that packages the data according to the size integer,
+                        the data must be accessed using a for loop.   
     """
     # Window is starting with 1/5 of a second (5 lines)
     #  This should take x rows of the df, convert to np.array (.to_numpy()) 
     #   store and repeat the process until whole df is converted to "images"
     # this will plug into the CNN
-    return (cleaned_csv_df[pos:pos + size] for pos in xrange(0, len(cleaned_csv_df), size))
+
+    return (cleaned_csv_df[pos:pos + size] for pos in range(0, len(cleaned_csv_df), size))
 
 
 
