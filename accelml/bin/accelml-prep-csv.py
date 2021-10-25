@@ -51,6 +51,8 @@ def accel_data_csv_cleaner(accel_data_csv):
                         'battery_voltage',
                         'Metadata':'metadata'},
                          errors="raise")
+    cols_at_front = ['behavior', 'acc_x', 'acc_y', 'acc_z']
+    df = df[[c for c in cols_at_front if c in df]+[c for c in df if c not in cols_at_front]] #checks if columns exist
         # above line raises erro if the key in the name dic does not exist.
        # check for correct number of columns, then check for correct column titles
     df= df.dropna(subset=['time', 'behavior'])
@@ -79,7 +81,8 @@ def data_packaging(cleaned_csv_df, size):
     Args:
     cleaned_csv_df -- output of accel_data_csv_cleaner, a dataframe that contains 
                         annotated and timestamped accelerometer data. 
-    size -- the number of rows of data to include in each "image"
+    size -- the number of rows of data to include in each "image",
+            (EX: 25 = 1 second, 5 = 1/5 second, 500 = 20 seconds)
     
     Returns:
     packaged_cnn_data -- generator class that packages the data according to the size integer,
@@ -93,11 +96,16 @@ def data_packaging(cleaned_csv_df, size):
     return (cleaned_csv_df[pos:pos + size] for pos in range(0, len(cleaned_csv_df), size))
 
 
+def convert_2_ndarray(packaged_data):
+    for image in packaged_data:
+        #columns FOR NOW 8-10
+
 
 def main():
     args = arguments()
     clean_data = accel_data_csv_cleaner(args.csv_file)
     output_data(args.csv_file, clean_data, args.output)
+    # return output_data which will be an LIST of ndarrays
 
 if __name__ == "__main__":
     main()
