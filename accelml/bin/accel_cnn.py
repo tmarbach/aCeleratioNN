@@ -34,6 +34,7 @@ def conv_single_pos(a_slice_prev, W, b):
     return Z
 
 
+
 def conv_forward(A_prev, W, b, hparams):
     """
     Args:
