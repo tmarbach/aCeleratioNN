@@ -47,12 +47,15 @@ def accel_data_csv_cleaner(accel_data_csv):
                         'accY':'acc_y',
                         'accZ':'acc_z',
                         'Temp. (?C)':'temp_c',
-                        'Battery Voltage (V)':
-                        'battery_voltage',
+                        'Battery Voltage (V)':'battery_voltage',
                         'Metadata':'metadata'},
                          errors="raise")
-    cols_at_front = ['behavior', 'acc_x', 'acc_y', 'acc_z']
-    df = df[[c for c in cols_at_front if c in df]+[c for c in df if c not in cols_at_front]] #checks if columns exist
+    cols_at_front = ['behavior',
+                     'acc_x', 
+                     'acc_y', 
+                     'acc_z']
+    df = df[[c for c in cols_at_front if c in df]+
+            [c for c in df if c not in cols_at_front]] #checks if columns exist
         # above line raises erro if the key in the name dic does not exist.
        # check for correct number of columns, then check for correct column titles
     df= df.dropna(subset=['time', 'behavior'])
