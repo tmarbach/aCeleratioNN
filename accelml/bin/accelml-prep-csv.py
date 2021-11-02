@@ -52,10 +52,11 @@ def accel_data_csv_cleaner(accel_data_csv):
     # need to check if the first 1 or 2 time signatures (sampling) have 25 entries, if not, kick an error
     df= df.dropna(subset=['time', 'behavior','date'])
     df = df.loc[df['behavior'] != 'n']
+    df = df.loc[df['behavior'] != 'h']
     df['date']= df['date'].str.replace('/','-')
     df['date_time'] = pd.to_datetime(df['date'] + ' ' + df['time'],
                                      format = '%d-%m-%Y %H:%M:%S')
-                                     
+
     return df
 
 
