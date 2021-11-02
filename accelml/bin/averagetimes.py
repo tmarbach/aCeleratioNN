@@ -43,11 +43,14 @@ def average_generator(single_behavior_csv):
     sec = pd.Timedelta('1sec')
     breaks = dt.date_time.diff() != sec
     groups = breaks.cumsum()
+    counts = []
     for group in dt.groupby(groups):
         count = group[1]
-        print(len(count.index)) # outputs a int of the # of seconds
+        instance = len(count.index) # outputs a int of the # of seconds
+        counts.append(instance)
+    return float(sum(counts))/len(counts)
         
 
 
 if __name__ == "__main__":
-    average_generator('../../../MLSnakes/test_data/combined-training/allinvestcarc.csv')
+    print(average_generator('../../../MLSnakes/test_data/combined-training/allinvestcarc.csv'))
