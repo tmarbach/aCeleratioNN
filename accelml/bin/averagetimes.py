@@ -38,14 +38,16 @@ def average_generator(single_behavior_csv):
 #DOESNT WORK IF DATA ISNT CLEAN aka time or date is bad. 
 #Now in date_time format, code below can chunk it into groups
     dt = pd.DataFrame(uniquedf, columns = ['date_time'])
+
+
     sec = pd.Timedelta('1sec')
     breaks = dt.date_time.diff() != sec
     groups = breaks.cumsum()
     for group in dt.groupby(groups):
-        print(group[1])
-        #currently, prints tuple objects where the second element provides the number of seconds
-        # no idea how to get access to that number currently.
+        count = group[1]
+        print(len(count.index)) # outputs a int of the # of seconds
+        
 
 
 if __name__ == "__main__":
-    average_generator('../MLSnakes/test_data/combined-training/allingest.csv')
+    average_generator('../../../MLSnakes/test_data/combined-training/allinvestcarc.csv')
