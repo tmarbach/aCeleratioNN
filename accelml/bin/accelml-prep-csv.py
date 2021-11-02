@@ -50,10 +50,13 @@ def accel_data_csv_cleaner(accel_data_csv):
             [c for c in df if c not in cols_at_front]]
                    # check for correct number of columns, then check for correct column titles
     # need to check if the first 1 or 2 time signatures (sampling) have 25 entries, if not, kick an error
-
     df= df.dropna(subset=['time', 'behavior','date'])
-    cleaned_df = df.loc[df['behavior'] != 'n']
-    return cleaned_df
+    df = df.loc[df['behavior'] != 'n']
+    df['date']= df['date'].str.replace('/','-')
+    df['date_time'] = pd.to_datetime(df['date'] + ' ' + df['time'],
+                                     format = '%d-%m-%Y %H:%M:%S')
+                                     
+    return df
 
 
 def output_data(original_data, clean_csv_df, output_location):
@@ -93,7 +96,6 @@ def data_packaging(cleaned_csv_df, size):
 
 def convert_2_ndarray(packaged_data):
     for image in packaged_data:
-        #columns FOR NOW 8-10
 
 
 def main():
