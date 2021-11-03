@@ -29,19 +29,19 @@ def accel_data_csv_cleaner(accel_data_csv):
     #rename variables
     df = pd.read_csv(accel_data_csv,low_memory=False)
     #check column names if they fit correctly and add an error if they don't
-    df.rename(columns={'TagID':'tag_id',
-                        'Date':'date',
-                        'Time':'time',
-                        'Camera date':'camera_date',
-                        'Camera time':'camera_time',
-                        'Behavior':'behavior',
-                        'accX':'acc_x',
-                        'accY':'acc_y',
-                        'accZ':'acc_z',
-                        'Temp. (?C)':'temp_c',
-                        'Battery Voltage (V)':'battery_voltage',
-                        'Metadata':'metadata'},
-                         errors="raise")
+    df = df.rename(columns={'TagID':'tag_id',
+                            'Date':'date',
+                            'Time':'time',
+                            'Camera date':'camera_date',
+                            'Camera time':'camera_time',
+                            'Behavior':'behavior',
+                            'accX':'acc_x',
+                            'accY':'acc_y',
+                            'accZ':'acc_z',
+                            'Temp. (?C)':'temp_c',
+                            'Battery Voltage (V)':'battery_voltage',
+                            'Metadata':'metadata'},
+                            errors="raise")
     cols_at_front = ['behavior',
                      'acc_x', 
                      'acc_y', 
@@ -50,7 +50,7 @@ def accel_data_csv_cleaner(accel_data_csv):
             [c for c in df if c not in cols_at_front]]
                    # check for correct number of columns, then check for correct column titles
     # need to check if the first 1 or 2 time signatures (sampling) have 25 entries, if not, kick an error
-    df= df.dropna(subset=['time', 'behavior','date'])
+    df= df.dropna(subset=['behavior','time'])
     df = df.loc[df['behavior'] != 'n']
     df = df.loc[df['behavior'] != 'h']
     df['date']= df['date'].str.replace('/','-')
@@ -95,15 +95,16 @@ def data_packaging(cleaned_csv_df, size):
     return (cleaned_csv_df[pos:pos + size] for pos in range(0, len(cleaned_csv_df), size))
 
 
-def convert_2_ndarray(packaged_data):
-    for image in packaged_data:
+# def convert_2_ndarray(packaged_data):
+#     for image in packaged_data:
 
 
 def main():
     args = arguments()
     clean_data = accel_data_csv_cleaner(args.csv_file)
     output_data(args.csv_file, clean_data, args.output)
-    # return output_data which will be an LIST of ndarrays
+    # return output_data which will be a csv file of the cleaned
+    # and reorganized data, other scripts will work with it from there.
 
 if __name__ == "__main__":
     main()
