@@ -48,7 +48,7 @@ def average_generator(single_behavior_csv):
         count = group[1]
         instance = len(count.index) # outputs a int of the # of seconds
         counts.append(instance)
-    return float(sum(counts))/len(counts)
+    return sum(counts)/len(counts)
         
 
 
