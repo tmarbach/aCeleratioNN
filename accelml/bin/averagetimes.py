@@ -40,7 +40,9 @@ def average_generator(one_class_df):
         count = group[1]
         instance = len(count.index) # outputs a int of the # of seconds
         counts.append(instance)
-    return sum(counts)/len(counts)
+        instances = len(counts)
+        average = sum(counts)/instances
+    return list(instances,average)
         
 
 
