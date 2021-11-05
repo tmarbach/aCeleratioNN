@@ -1,6 +1,8 @@
 import os
 import pandas as pd
 import argparse
+from datetime import datetime
+from datetime import timedelta
 
 
 def arguments():
@@ -56,6 +58,15 @@ def accel_data_csv_cleaner(accel_data_csv):
     df['date']= df['date'].str.replace('/','-')
     df['date_time'] = pd.to_datetime(df['date'] + ' ' + df['time'],
                                      format = '%d-%m-%Y %H:%M:%S')
+    df["annotation_group_step"] = df.groupby("date_time").cumcount()
+
+    df["date_time"] = (
+                    df.groupby("date_time")
+                    .apply(lambda x: x.date_time
+                        + (timedelta(milliseconds=(1000 / x.shape[0])) * x.annotation_group_step)
+                        )
+                        .reset_index(drop=True)
+                    )
 
     return df
 
