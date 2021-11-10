@@ -1,25 +1,26 @@
 import numpy as np
 import pandas as pd
 
+
+# will eventually also convert the overall behavior to one-hot and 
+# add its label to the same spot on another array.
 def window_maker(cleancsv):
     df = pd.read_csv(cleancsv)
     groups = df.groupby(['time'])
+    print(len(groups))
+    arraylist = []
     for group in groups:
         time_df = group[1]
-        #minidf = time_df[['behavior', 'acc_x',  'acc_y',  'acc_z', 'date_time']]
         nparray = time_df[['acc_x',  'acc_y',  'acc_z']].to_numpy()
+        truearray = nparray.transpose()
+        arraylist.append(truearray)
+    stacked = np.stack((arraylist), axis=0)
 
-        print(nparray.transpose().shape)
-
-    #group[1] = df -> behavior, xyz -> convert to np.array & one-hot
-
-
-    #return groups
-    #print(groups)
+    print(stacked)
 
 
 def main():
-    window_maker("../../../CNNworkspace/millicleantestdata.csv")
+    window_maker("../../../CNNworkspace/fullsectestdata.csv")
 
 if __name__=="__main__":
     main()
