@@ -55,6 +55,8 @@ def accel_data_csv_cleaner(accel_data_csv):
     df= df.dropna(subset=['behavior','time'])
     df = df.loc[df['behavior'] != 'n']
     df = df.loc[df['behavior'] != 'h']
+    #
+    #
     df['date']= df['date'].str.replace('/','-')
     df['date_time'] = pd.to_datetime(df['date'] + ' ' + df['time'],
                                      format = '%d-%m-%Y %H:%M:%S')
@@ -78,32 +80,34 @@ def output_data(original_data, clean_csv_df, output_location):
     else:
         clean_csv_df.to_csv(output_location, index=False)
 
-# def make_output_dir():
-#     """Makes an output/ directory if it does not already exist."""
-#     try:
-#         os.mkdir('output')
-#     except FileExistsError:
-#         pass
 
 
-def data_packaging(cleaned_csv_df, size):
+
+def data_packaging(cleaned_csv_df, rejecttimes):
     """
     Args:
     cleaned_csv_df -- output of accel_data_csv_cleaner, a dataframe that contains 
                         annotated and timestamped accelerometer data. 
-    size -- the number of rows of data to include in each "image",
-            (EX: 25 = 1 second, 5 = 1/5 second, 500 = 20 seconds)
+    rejecttimes -- empty list
     
     Returns:
-    packaged_cnn_data -- generator class that packages the data according to the size integer,
-                        the data must be accessed using a for loop.   
+    polished_csv_df -- dataframe with every timestamp accounting for 25 rows. Ready for CNN. 
+    rejecttimes -- list object with timestamps of times with fewer than 25 entries.  
     """
-    # Window is starting with 1/5 of a second (5 lines)
-    #  This should take x rows of the df, convert to np.array (.to_numpy()) 
-    #   store and repeat the process until whole df is converted to "images"
-    # this will plug into the CNN
+    groups = cleaned_csv_df.groupby(['time'])
+    polished_csv_df = pd.DataFrame(columns = cleaned_csv_df.columns)
+    if set(groups) > 1:
+        for group in groups:
+            if group.size != 25:
+                pass 
+            else:
+                polished_csv_df = polished_csv_df.append(group[1])
 
-    return (cleaned_csv_df[pos:pos + size] for pos in range(0, len(cleaned_csv_df), size))
+    else:
+        polished_csv_df == cleaned_csv_df 
+        rejecttimes.append('No rejected timestamps')
+
+    return polished_csv_df, rejecttimes
 
 
 # def convert_2_ndarray(packaged_data):
@@ -111,8 +115,10 @@ def data_packaging(cleaned_csv_df, size):
 
 
 def main():
+    bad_times = []
     args = arguments()
     clean_data = accel_data_csv_cleaner(args.csv_file)
+    data_packaging(clean_data,bad_times)
     output_data(args.csv_file, clean_data, args.output)
     # return output_data which will be a csv file of the cleaned
     # and reorganized data, other scripts will work with it from there.
