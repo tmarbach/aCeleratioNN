@@ -4,6 +4,15 @@ import argparse
 from datetime import datetime
 from datetime import timedelta
 
+# TODO: inspect timestamps for the number of entries per second. 
+    # if there are fewer than the median, then remove that second of data.
+    # likely trims the first and last seconds of data. 
+    # the input_index column must be put in after all csv files have been concatentated
+        # but before rows are ignored for incomplete/faulty data
+        # currently, concat doesnt occur
+    
+    # Ultimately, write an output file for the data removed by this script. 
+    #   this would be for troubleshooting and verification. 
 
 def arguments():
     parser = argparse.ArgumentParser(
@@ -28,7 +37,6 @@ def arguments():
 
 
 def accel_data_csv_cleaner(accel_data_csv):
-    #rename variables
     df = pd.read_csv(accel_data_csv,low_memory=False)
     #check column names if they fit correctly and add an error if they don't
     df = df.rename(columns={'TagID':'tag_id',
@@ -44,6 +52,7 @@ def accel_data_csv_cleaner(accel_data_csv):
                             'Battery Voltage (V)':'battery_voltage',
                             'Metadata':'metadata'},
                             errors="raise")
+    df['input_index'] = df.index
     cols_at_front = ['behavior',
                      'acc_x', 
                      'acc_y', 
@@ -56,7 +65,7 @@ def accel_data_csv_cleaner(accel_data_csv):
     df = df.loc[df['behavior'] != 'n']
     df = df.loc[df['behavior'] != 'h']
     #
-    #
+    # FOLLOWING SHOULD NO LONGER BE NECESSARY
     df['date']= df['date'].str.replace('/','-')
     df['date_time'] = pd.to_datetime(df['date'] + ' ' + df['time'],
                                      format = '%d-%m-%Y %H:%M:%S')
@@ -69,6 +78,7 @@ def accel_data_csv_cleaner(accel_data_csv):
                         )
                         .reset_index(drop=True)
                     )
+    # END SUPERFLUOUS CODE
 
     return df
 
