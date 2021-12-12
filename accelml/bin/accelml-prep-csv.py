@@ -41,8 +41,8 @@ def accel_data_csv_cleaner(accel_data_csv):
     #check column names if they fit correctly and add an error if they don't
     df = df.rename(columns={'TagID':'tag_id',
                             'Date':'date',
-                            'Time':'time',
-                            'Camera date':'camera_date',
+                            'Exact Time':'time',
+                           # 'Camera date':'camera_date',
                             'Camera time':'camera_time',
                             'Behavior':'behavior',
                             'accX':'acc_x',
@@ -66,18 +66,18 @@ def accel_data_csv_cleaner(accel_data_csv):
     df = df.loc[df['behavior'] != 'h']
     #
     # FOLLOWING SHOULD NO LONGER BE NECESSARY
-    df['date']= df['date'].str.replace('/','-')
-    df['date_time'] = pd.to_datetime(df['date'] + ' ' + df['time'],
-                                     format = '%d-%m-%Y %H:%M:%S')
-    df["annotation_group_step"] = df.groupby("date_time").cumcount()
+    # df['date']= df['date'].str.replace('/','-')
+    # df['date_time'] = pd.to_datetime(df['date'] + ' ' + df['time'],
+    #                                  format = '%d-%m-%Y %H:%M:%S')
+    # df["annotation_group_step"] = df.groupby("date_time").cumcount()
 
-    df["date_time"] = (
-                    df.groupby("date_time")
-                    .apply(lambda x: x.date_time
-                        + (timedelta(milliseconds=(1000 / x.shape[0])) * x.annotation_group_step)
-                        )
-                        .reset_index(drop=True)
-                    )
+    # df["date_time"] = (
+    #                 df.groupby("date_time")
+    #                 .apply(lambda x: x.date_time
+    #                     + (timedelta(milliseconds=(1000 / x.shape[0])) * x.annotation_group_step)
+    #                     )
+    #                     .reset_index(drop=True)
+    #                 )
     # END SUPERFLUOUS CODE
 
     return df
@@ -93,31 +93,31 @@ def output_data(original_data, clean_csv_df, output_location):
 
 
 
-def data_packaging(cleaned_csv_df, rejecttimes):
-    """
-    Args:
-    cleaned_csv_df -- output of accel_data_csv_cleaner, a dataframe that contains 
-                        annotated and timestamped accelerometer data. 
-    rejecttimes -- empty list
+# def data_packaging(cleaned_csv_df, rejecttimes):
+#     """
+#     Args:
+#     cleaned_csv_df -- output of accel_data_csv_cleaner, a dataframe that contains 
+#                         annotated and timestamped accelerometer data. 
+#     rejecttimes -- empty list
     
-    Returns:
-    polished_csv_df -- dataframe with every timestamp accounting for 25 rows. Ready for CNN. 
-    rejecttimes -- list object with timestamps of times with fewer than 25 entries.  
-    """
-    groups = cleaned_csv_df.groupby(['time'])
-    polished_csv_df = pd.DataFrame(columns = cleaned_csv_df.columns)
-    if set(groups) > 1:
-        for group in groups:
-            if group.size != 25:
-                pass 
-            else:
-                polished_csv_df = polished_csv_df.append(group[1])
+#     Returns:
+#     polished_csv_df -- dataframe with every timestamp accounting for 25 rows. Ready for CNN. 
+#     rejecttimes -- list object with timestamps of times with fewer than 25 entries.  
+#     """
+#     groups = cleaned_csv_df.groupby(['time'])
+#     polished_csv_df = pd.DataFrame(columns = cleaned_csv_df.columns)
+#     if set(groups['time']) > 1:
+#         for group in groups:
+#             if group.size != 25:
+#                 pass 
+#             else:
+#                 polished_csv_df = polished_csv_df.append(group[1])
 
-    else:
-        polished_csv_df == cleaned_csv_df 
-        rejecttimes.append('No rejected timestamps')
+#     else:
+#         polished_csv_df == cleaned_csv_df 
+#         rejecttimes.append('No rejected timestamps')
 
-    return polished_csv_df, rejecttimes
+#     return polished_csv_df, rejecttimes
 
 
 # def convert_2_ndarray(packaged_data):
@@ -128,7 +128,7 @@ def main():
     bad_times = []
     args = arguments()
     clean_data = accel_data_csv_cleaner(args.csv_file)
-    data_packaging(clean_data,bad_times)
+  #  data_packaging(clean_data,bad_times)
     output_data(args.csv_file, clean_data, args.output)
     # return output_data which will be a csv file of the cleaned
     # and reorganized data, other scripts will work with it from there.
